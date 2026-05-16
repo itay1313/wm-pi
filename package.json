@@ -1,0 +1,19 @@
+{
+	"name": "walkme-posts-blocks",
+	"version": "1.0.0",
+	"description": "WalkMe assessment — Posts Grid + Posts Filter Gutenberg blocks.",
+	"private": true,
+	"scripts": {
+		"build": "wp-scripts build --webpack-src-dir=src --output-path=build",
+		"start": "wp-scripts start --webpack-src-dir=src --output-path=build",
+		"format": "wp-scripts format",
+		"lint:js": "wp-scripts lint-js",
+		"lint:css": "wp-scripts lint-style",
+		"packages-update": "wp-scripts packages-update",
+		"env": "wp-env"
+	},
+	"devDependencies": {
+		"@wordpress/env": "^10.0.0",
+		"@wordpress/scripts": "^30.0.0"
+	}
+}

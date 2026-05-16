@@ -1,0 +1,60 @@
+.walkme-posts-filter {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	padding: 1rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #f9fafb;
+	margin-bottom: 1.5rem;
+
+	&__group {
+		flex: 1;
+		min-width: 220px;
+		border: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	&__legend {
+		font-weight: 600;
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #374151;
+		margin-bottom: 0.5rem;
+		padding: 0;
+	}
+
+	&__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+
+		li label {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			font-size: 0.9rem;
+			cursor: pointer;
+			user-select: none;
+		}
+	}
+
+	&__clear {
+		align-self: flex-end;
+		background: transparent;
+		border: 1px solid #d1d5db;
+		border-radius: 6px;
+		padding: 0.4rem 0.75rem;
+		font-size: 0.85rem;
+		cursor: pointer;
+
+		&:hover {
+			background: #f3f4f6;
+		}
+	}
+}

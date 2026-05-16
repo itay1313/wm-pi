@@ -1,0 +1,122 @@
+.walkme-posts-grid {
+	position: relative;
+
+	&.is-loading {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	&__items {
+		display: grid;
+		gap: 1.5rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	&--cols-2 .walkme-posts-grid__items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	&--cols-3 .walkme-posts-grid__items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	&--cols-4 .walkme-posts-grid__items { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+	@media (max-width: 768px) {
+		.walkme-posts-grid__items {
+			grid-template-columns: repeat(1, minmax(0, 1fr));
+		}
+	}
+
+	&__item {
+		background: #fff;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		overflow: hidden;
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+		&:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+		}
+	}
+
+	&__link {
+		display: block;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	&__media {
+		aspect-ratio: 16 / 10;
+		background: #f3f4f6;
+		overflow: hidden;
+
+		img, svg {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+	}
+
+	&__title {
+		font-size: 1.1rem;
+		font-weight: 600;
+		margin: 0.75rem 1rem 0.25rem;
+		line-height: 1.3;
+	}
+
+	&__excerpt {
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: #4b5563;
+		margin: 0 1rem 1rem;
+	}
+
+	&__empty {
+		grid-column: 1 / -1;
+		padding: 2rem;
+		text-align: center;
+		color: #6b7280;
+	}
+
+	&__pagination {
+		margin-top: 1.5rem;
+	}
+}
+
+.walkme-posts-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+
+	&__pages {
+		list-style: none;
+		display: flex;
+		gap: 0.25rem;
+		margin: 0;
+		padding: 0;
+	}
+
+	&__btn,
+	&__page {
+		background: #fff;
+		border: 1px solid #d1d5db;
+		border-radius: 6px;
+		padding: 0.4rem 0.75rem;
+		cursor: pointer;
+		font: inherit;
+
+		&:hover:not(:disabled) {
+			background: #f3f4f6;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	&__page.is-current {
+		background: #1e3a8a;
+		color: #fff;
+		border-color: #1e3a8a;
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "walkme/posts-filter",
+	"version": "1.0.0",
+	"title": "Posts Filter",
+	"category": "widgets",
+	"icon": "filter",
+	"description": "Frontend filter UI (categories + tags) that controls a Posts Grid placed anywhere on the same page.",
+	"textdomain": "walkme-posts-blocks",
+	"supports": {
+		"html": false,
+		"align": ["wide"]
+	},
+	"attributes": {
+		"targetQueryId": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js"
+}

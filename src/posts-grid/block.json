@@ -1,0 +1,32 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "walkme/posts-grid",
+	"version": "1.0.0",
+	"title": "Posts Grid",
+	"category": "widgets",
+	"icon": "grid-view",
+	"description": "Dynamic grid of posts with configurable columns and per-page count. Listens to Posts Filter changes.",
+	"textdomain": "walkme-posts-blocks",
+	"supports": {
+		"html": false,
+		"align": ["wide", "full"]
+	},
+	"attributes": {
+		"queryId": {
+			"type": "string",
+			"default": ""
+		},
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"postsPerPage": {
+			"type": "number",
+			"default": 6
+		}
+	},
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js"
+}
