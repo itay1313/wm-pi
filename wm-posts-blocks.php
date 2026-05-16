@@ -64,3 +64,48 @@ add_action( 'init', 'wm_pb_register_blocks' );
 add_action( 'rest_api_init', array( 'Wm_PB_REST_API', 'register_routes' ) );
 
 register_activation_hook( __FILE__, array( 'Wm_PB_Activator', 'activate' ) );
+
+/**
+ * Lightweight frontend optimizer.
+ *
+ * The blocks ship their own modern, semantic markup — they don't depend on
+ * the WordPress emoji polyfill, wp-embed (oEmbed for legacy WP-to-WP embeds),
+ * or jQuery-Migrate. Skipping these on the public side trims ~30 KB of JS,
+ * three render-blocking inline scripts, and reduces main-thread work.
+ *
+ * Only runs on the frontend and only when our demo page (or any post that
+ * contains one of our blocks) is rendering, to stay scoped and unsurprising.
+ */
+function wm_pb_frontend_optimize() {
+	if ( is_admin() ) {
+		return;
+	}
+
+	// Defer non-essential WP scripts that our blocks don't use.
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+	remove_action( 'admin_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+
+	// wp-embed.min.js — only needed to embed external WP posts.
+	wp_deregister_script( 'wp-embed' );
+}
+add_action( 'init', 'wm_pb_frontend_optimize' );
+
+/**
+ * Add `defer` to our own view scripts. They're event listeners — no need
+ * to block paint.
+ */
+function wm_pb_defer_view_scripts( $tag, $handle ) {
+	if ( is_admin() ) {
+		return $tag;
+	}
+	if ( false !== strpos( $handle, 'wm-posts-' ) && false !== strpos( $tag, '/build/' ) ) {
+		$tag = str_replace( ' src=', ' defer src=', $tag );
+	}
+	return $tag;
+}
+add_filter( 'script_loader_tag', 'wm_pb_defer_view_scripts', 10, 2 );

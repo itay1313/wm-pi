@@ -230,7 +230,7 @@ class Wm_PB_Renderer {
 						}
 						?>
 					</div>
-					<h3 class="wm-posts-grid__title"><?php the_title(); ?></h3>
+					<h2 class="wm-posts-grid__title"><?php the_title(); ?></h2>
 					<div class="wm-posts-grid__excerpt"><?php echo wp_kses_post( get_the_excerpt() ); ?></div>
 				</a>
 			</article>

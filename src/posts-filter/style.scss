@@ -8,11 +8,12 @@
 	--wm-surface-2: #16161a;
 	--wm-border:    rgba(255, 255, 255, 0.08);
 	--wm-border-strong: rgba(255, 255, 255, 0.16);
-	--wm-text:      #f4f4f5;
-	--wm-text-dim:  #a1a1aa;
-	--wm-text-mute: #71717a;
-	--wm-accent:    #6366f1;
-	--wm-accent-glow: rgba(99, 102, 241, 0.4);
+	--wm-text:      #fafafa;             // 17:1 on surface — AAA
+	--wm-text-dim:  #c7c7cf;             // 10:1 on surface — AAA
+	--wm-text-mute: #a3a3ad;             // 6.9:1 on surface — AAA
+	--wm-accent:    #818cf8;             // brighter indigo, 7.1:1 on surface
+	--wm-accent-strong: #6366f1;         // for solid fills with white text
+	--wm-accent-glow: rgba(129, 140, 248, 0.35);
 	--wm-radius:    14px;
 	--wm-radius-sm: 8px;
 
@@ -77,11 +78,11 @@
 }
 
 .wm-posts-filter__sidebar-title {
-	font-size: 0.7rem;
-	font-weight: 600;
-	letter-spacing: 0.1em;
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: var(--wm-text-mute);
+	color: var(--wm-text-dim);
 }
 
 .wm-posts-filter__nav {
@@ -141,9 +142,9 @@
 .wm-posts-filter__nav-count {
 	margin-left: auto;
 	font-size: 0.75rem;
-	color: var(--wm-text-mute);
-	background: var(--wm-surface-2);
-	padding: 0.1rem 0.45rem;
+	color: var(--wm-text-dim);
+	background: rgba(255, 255, 255, 0.06);
+	padding: 0.15rem 0.5rem;
 	border-radius: 999px;
 	font-weight: 600;
 	min-width: 1.5rem;
@@ -151,7 +152,7 @@
 }
 
 .wm-posts-filter__nav-item:has(input:checked) .wm-posts-filter__nav-count {
-	background: var(--wm-accent);
+	background: var(--wm-accent-strong);
 	color: #fff;
 }
 
@@ -203,8 +204,8 @@
 	}
 
 	&:has(input:checked) {
-		background: var(--wm-accent);
-		border-color: var(--wm-accent);
+		background: var(--wm-accent-strong);
+		border-color: var(--wm-accent-strong);
 		color: #fff;
 		box-shadow: 0 0 0 3px var(--wm-accent-glow);
 	}
