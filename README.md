@@ -352,5 +352,3 @@ GPL-2.0-or-later, matching WordPress core.
 
 **Itay Haephrati** — engineer and product builder.
 Web: [itaycode.com](https://itaycode.com) · GitHub: [@itay1313](https://github.com/itay1313)
-
-This plugin was built as a technical assessment.

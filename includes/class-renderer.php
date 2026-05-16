@@ -175,12 +175,22 @@ class Walkme_PB_Renderer {
 		while ( $query->have_posts() ) {
 			$query->the_post();
 			$thumb = get_the_post_thumbnail( get_the_ID(), 'medium_large', array( 'class' => 'walkme-posts-grid__thumb' ) );
+			$placeholder = '';
+			if ( ! $thumb ) {
+				$placeholder = self::placeholder_thumbnail( get_the_title(), get_the_ID() );
+			}
 			?>
 			<article class="walkme-posts-grid__item">
 				<a class="walkme-posts-grid__link" href="<?php the_permalink(); ?>">
-					<?php if ( $thumb ) : ?>
-						<div class="walkme-posts-grid__media"><?php echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-					<?php endif; ?>
+					<div class="walkme-posts-grid__media">
+						<?php
+						if ( $thumb ) {
+							echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						} else {
+							echo $placeholder; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						}
+						?>
+					</div>
 					<h3 class="walkme-posts-grid__title"><?php the_title(); ?></h3>
 					<div class="walkme-posts-grid__excerpt"><?php echo wp_kses_post( get_the_excerpt() ); ?></div>
 				</a>
@@ -188,6 +198,30 @@ class Walkme_PB_Renderer {
 			<?php
 		}
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render an inline SVG placeholder for posts that have no featured image.
+	 * Deterministic — same post always gets the same color + initials.
+	 */
+	protected static function placeholder_thumbnail( $title, $post_id ) {
+		$palette = array(
+			'#1e3a8a', '#9333ea', '#0f766e', '#b91c1c',
+			'#ca8a04', '#0369a1', '#be185d', '#15803d',
+			'#7c2d12', '#4338ca', '#0e7490', '#a16207',
+		);
+		$bg     = $palette[ absint( $post_id ) % count( $palette ) ];
+		$letters = strtoupper( substr( preg_replace( '/[^A-Za-z0-9]/', '', $title ), 0, 2 ) );
+		if ( '' === $letters ) {
+			$letters = '?';
+		}
+
+		return sprintf(
+			'<svg class="walkme-posts-grid__thumb walkme-posts-grid__thumb--placeholder" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="%3$s"><rect width="600" height="400" fill="%1$s"/><text x="50%%" y="50%%" font-family="Helvetica, Arial, sans-serif" font-size="160" font-weight="700" fill="rgba(255,255,255,0.92)" text-anchor="middle" dominant-baseline="central">%2$s</text></svg>',
+			esc_attr( $bg ),
+			esc_html( $letters ),
+			esc_attr( $title )
+		);
 	}
 
 	/**
