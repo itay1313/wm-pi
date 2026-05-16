@@ -3,7 +3,7 @@
  *
  * On any checkbox change inside a filter root, collect the current
  * selected term IDs for both category and tag groups, and broadcast
- * a `walkme:filter-change` CustomEvent on `window`. The Posts Grid
+ * a `wm:filter-change` CustomEvent on `window`. The Posts Grid
  * view script listens and refetches.
  *
  * Multiple filters on a page are independent: each filter owns its
@@ -30,7 +30,7 @@ function readSelections( root ) {
 function emit( root ) {
 	const { categories, tags } = readSelections( root );
 	const targetQueryId = root.dataset.targetQueryId || '';
-	const evt = new CustomEvent( 'walkme:filter-change', {
+	const evt = new CustomEvent( 'wm:filter-change', {
 		detail: { categories, tags, targetQueryId },
 	} );
 	window.dispatchEvent( evt );
@@ -38,7 +38,7 @@ function emit( root ) {
 
 function onChange( e ) {
 	if ( e.target.matches( 'input[type="checkbox"][data-filter-type]' ) ) {
-		const root = e.target.closest( '[data-walkme-filter="1"]' );
+		const root = e.target.closest( '[data-wm-filter="1"]' );
 		if ( root ) {
 			emit( root );
 		}
@@ -46,11 +46,11 @@ function onChange( e ) {
 }
 
 function onClear( e ) {
-	const btn = e.target.closest( '.walkme-posts-filter__clear' );
+	const btn = e.target.closest( '.wm-posts-filter__clear' );
 	if ( ! btn ) {
 		return;
 	}
-	const root = btn.closest( '[data-walkme-filter="1"]' );
+	const root = btn.closest( '[data-wm-filter="1"]' );
 	if ( ! root ) {
 		return;
 	}

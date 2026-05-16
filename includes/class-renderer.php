@@ -1,6 +1,6 @@
 <?php
 /**
- * Server-side rendering for the WalkMe Posts blocks.
+ * Server-side rendering for the WM Posts blocks.
  *
  * The same render functions are used by both the initial Gutenberg
  * server-side render AND the REST endpoint (so AJAX updates produce
@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Walkme_PB_Renderer {
+class Wm_PB_Renderer {
 
 	/**
 	 * Render the Posts Grid block.
@@ -22,12 +22,12 @@ class Walkme_PB_Renderer {
 	 * @return string
 	 */
 	public static function render_grid( $attributes, $content = '', $block = null ) {
-		$columns       = walkme_pb_clamp_columns( $attributes['columns'] ?? 3 );
+		$columns       = wm_pb_clamp_columns( $attributes['columns'] ?? 3 );
 		$per_page      = max( 1, absint( $attributes['postsPerPage'] ?? 6 ) );
 		$query_id      = sanitize_key( $attributes['queryId'] ?? '' );
 		$current_page  = max( 1, absint( $attributes['currentPage'] ?? 1 ) );
-		$category_ids  = walkme_pb_parse_term_ids( $attributes['categories'] ?? array() );
-		$tag_ids       = walkme_pb_parse_term_ids( $attributes['tags'] ?? array() );
+		$category_ids  = wm_pb_parse_term_ids( $attributes['categories'] ?? array() );
+		$tag_ids       = wm_pb_parse_term_ids( $attributes['tags'] ?? array() );
 
 		if ( ! $query_id ) {
 			// Editor preview without a saved queryId — synthesize one so attrs travel.
@@ -75,7 +75,7 @@ class Walkme_PB_Renderer {
 		wp_reset_postdata();
 
 		$wrapper_attrs = sprintf(
-			'class="walkme-posts-grid walkme-posts-grid--cols-%1$d" data-walkme-grid="1" data-query-id="%2$s" data-columns="%1$d" data-per-page="%3$d" data-current-page="%4$d" data-total-pages="%5$d" data-categories="%6$s" data-tags="%7$s"',
+			'class="wm-posts-grid wm-posts-grid--cols-%1$d" data-wm-grid="1" data-query-id="%2$s" data-columns="%1$d" data-per-page="%3$d" data-current-page="%4$d" data-total-pages="%5$d" data-categories="%6$s" data-tags="%7$s"',
 			$columns,
 			esc_attr( $query_id ),
 			$per_page,
@@ -88,7 +88,7 @@ class Walkme_PB_Renderer {
 		// Items + pagination. We render pagination as part of the grid so REST
 		// can return one HTML chunk for the whole "results region".
 		return sprintf(
-			'<div %1$s><div class="walkme-posts-grid__items">%2$s</div><div class="walkme-posts-grid__pagination">%3$s</div></div>',
+			'<div %1$s><div class="wm-posts-grid__items">%2$s</div><div class="wm-posts-grid__pagination">%3$s</div></div>',
 			$wrapper_attrs,
 			$items_html,
 			$pagination_html
@@ -126,10 +126,10 @@ class Walkme_PB_Renderer {
 
 		ob_start();
 		?>
-		<div class="walkme-posts-filter" data-walkme-filter="1" data-target-query-id="<?php echo esc_attr( $target_query_id ); ?>">
-			<fieldset class="walkme-posts-filter__group" data-filter-type="categories">
-				<legend class="walkme-posts-filter__legend"><?php esc_html_e( 'Categories', 'walkme-posts-blocks' ); ?></legend>
-				<ul class="walkme-posts-filter__list">
+		<div class="wm-posts-filter" data-wm-filter="1" data-target-query-id="<?php echo esc_attr( $target_query_id ); ?>">
+			<fieldset class="wm-posts-filter__group" data-filter-type="categories">
+				<legend class="wm-posts-filter__legend"><?php esc_html_e( 'Categories', 'wm-posts-blocks' ); ?></legend>
+				<ul class="wm-posts-filter__list">
 					<?php if ( ! is_wp_error( $categories ) && ! empty( $categories ) ) : ?>
 						<?php foreach ( $categories as $term ) : ?>
 							<li>
@@ -142,9 +142,9 @@ class Walkme_PB_Renderer {
 					<?php endif; ?>
 				</ul>
 			</fieldset>
-			<fieldset class="walkme-posts-filter__group" data-filter-type="tags">
-				<legend class="walkme-posts-filter__legend"><?php esc_html_e( 'Tags', 'walkme-posts-blocks' ); ?></legend>
-				<ul class="walkme-posts-filter__list">
+			<fieldset class="wm-posts-filter__group" data-filter-type="tags">
+				<legend class="wm-posts-filter__legend"><?php esc_html_e( 'Tags', 'wm-posts-blocks' ); ?></legend>
+				<ul class="wm-posts-filter__list">
 					<?php if ( ! is_wp_error( $tags ) && ! empty( $tags ) ) : ?>
 						<?php foreach ( $tags as $term ) : ?>
 							<li>
@@ -157,7 +157,7 @@ class Walkme_PB_Renderer {
 					<?php endif; ?>
 				</ul>
 			</fieldset>
-			<button type="button" class="walkme-posts-filter__clear"><?php esc_html_e( 'Clear filters', 'walkme-posts-blocks' ); ?></button>
+			<button type="button" class="wm-posts-filter__clear"><?php esc_html_e( 'Clear filters', 'wm-posts-blocks' ); ?></button>
 		</div>
 		<?php
 		return ob_get_clean();
@@ -168,21 +168,21 @@ class Walkme_PB_Renderer {
 	 */
 	protected static function render_grid_items( WP_Query $query ) {
 		if ( ! $query->have_posts() ) {
-			return '<p class="walkme-posts-grid__empty">' . esc_html__( 'No posts match your filters.', 'walkme-posts-blocks' ) . '</p>';
+			return '<p class="wm-posts-grid__empty">' . esc_html__( 'No posts match your filters.', 'wm-posts-blocks' ) . '</p>';
 		}
 
 		ob_start();
 		while ( $query->have_posts() ) {
 			$query->the_post();
-			$thumb = get_the_post_thumbnail( get_the_ID(), 'medium_large', array( 'class' => 'walkme-posts-grid__thumb' ) );
+			$thumb = get_the_post_thumbnail( get_the_ID(), 'medium_large', array( 'class' => 'wm-posts-grid__thumb' ) );
 			$placeholder = '';
 			if ( ! $thumb ) {
 				$placeholder = self::placeholder_thumbnail( get_the_title(), get_the_ID() );
 			}
 			?>
-			<article class="walkme-posts-grid__item">
-				<a class="walkme-posts-grid__link" href="<?php the_permalink(); ?>">
-					<div class="walkme-posts-grid__media">
+			<article class="wm-posts-grid__item">
+				<a class="wm-posts-grid__link" href="<?php the_permalink(); ?>">
+					<div class="wm-posts-grid__media">
 						<?php
 						if ( $thumb ) {
 							echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -191,8 +191,8 @@ class Walkme_PB_Renderer {
 						}
 						?>
 					</div>
-					<h3 class="walkme-posts-grid__title"><?php the_title(); ?></h3>
-					<div class="walkme-posts-grid__excerpt"><?php echo wp_kses_post( get_the_excerpt() ); ?></div>
+					<h3 class="wm-posts-grid__title"><?php the_title(); ?></h3>
+					<div class="wm-posts-grid__excerpt"><?php echo wp_kses_post( get_the_excerpt() ); ?></div>
 				</a>
 			</article>
 			<?php
@@ -217,7 +217,7 @@ class Walkme_PB_Renderer {
 		}
 
 		return sprintf(
-			'<svg class="walkme-posts-grid__thumb walkme-posts-grid__thumb--placeholder" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="%3$s"><rect width="600" height="400" fill="%1$s"/><text x="50%%" y="50%%" font-family="Helvetica, Arial, sans-serif" font-size="160" font-weight="700" fill="rgba(255,255,255,0.92)" text-anchor="middle" dominant-baseline="central">%2$s</text></svg>',
+			'<svg class="wm-posts-grid__thumb wm-posts-grid__thumb--placeholder" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="%3$s"><rect width="600" height="400" fill="%1$s"/><text x="50%%" y="50%%" font-family="Helvetica, Arial, sans-serif" font-size="160" font-weight="700" fill="rgba(255,255,255,0.92)" text-anchor="middle" dominant-baseline="central">%2$s</text></svg>',
 			esc_attr( $bg ),
 			esc_html( $letters ),
 			esc_attr( $title )
@@ -235,21 +235,21 @@ class Walkme_PB_Renderer {
 
 		ob_start();
 		?>
-		<nav class="walkme-posts-pagination" data-walkme-pagination="1" aria-label="<?php esc_attr_e( 'Posts pagination', 'walkme-posts-blocks' ); ?>">
-			<button type="button" class="walkme-posts-pagination__btn" data-direction="prev" <?php disabled( $current_page <= 1 ); ?>>
-				<?php esc_html_e( 'Previous', 'walkme-posts-blocks' ); ?>
+		<nav class="wm-posts-pagination" data-wm-pagination="1" aria-label="<?php esc_attr_e( 'Posts pagination', 'wm-posts-blocks' ); ?>">
+			<button type="button" class="wm-posts-pagination__btn" data-direction="prev" <?php disabled( $current_page <= 1 ); ?>>
+				<?php esc_html_e( 'Previous', 'wm-posts-blocks' ); ?>
 			</button>
-			<ul class="walkme-posts-pagination__pages">
+			<ul class="wm-posts-pagination__pages">
 				<?php for ( $i = 1; $i <= $total; $i++ ) : ?>
 					<li>
-						<button type="button" class="walkme-posts-pagination__page<?php echo $i === (int) $current_page ? ' is-current' : ''; ?>" data-page="<?php echo esc_attr( $i ); ?>" <?php echo $i === (int) $current_page ? 'aria-current="page"' : ''; ?>>
+						<button type="button" class="wm-posts-pagination__page<?php echo $i === (int) $current_page ? ' is-current' : ''; ?>" data-page="<?php echo esc_attr( $i ); ?>" <?php echo $i === (int) $current_page ? 'aria-current="page"' : ''; ?>>
 							<?php echo esc_html( (string) $i ); ?>
 						</button>
 					</li>
 				<?php endfor; ?>
 			</ul>
-			<button type="button" class="walkme-posts-pagination__btn" data-direction="next" <?php disabled( $current_page >= $total ); ?>>
-				<?php esc_html_e( 'Next', 'walkme-posts-blocks' ); ?>
+			<button type="button" class="wm-posts-pagination__btn" data-direction="next" <?php disabled( $current_page >= $total ); ?>>
+				<?php esc_html_e( 'Next', 'wm-posts-blocks' ); ?>
 			</button>
 		</nav>
 		<?php

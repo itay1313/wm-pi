@@ -2,7 +2,7 @@
  * Frontend behavior for the Posts Grid block.
  *
  * Inter-block contract:
- *   - The Posts Filter dispatches `walkme:filter-change` on window with
+ *   - The Posts Filter dispatches `wm:filter-change` on window with
  *     detail = { categories: number[], tags: number[], targetQueryId?: string }.
  *   - This script listens, refetches matching grids via the REST endpoint,
  *     and swaps inner HTML (items + pagination) in place.
@@ -12,17 +12,17 @@
  * it updates all grids (broadcast).
  */
 
-const REST_PATH = '/wp-json/walkme/v1/posts';
+const REST_PATH = '/wp-json/wm/v1/posts';
 
 function getRestUrl() {
 	// wp-includes/js/dist/url provides addQueryArgs, but to avoid an extra
 	// dependency we just build it manually.
 	const root = ( window.wpApiSettings && window.wpApiSettings.root ) || '/wp-json/';
-	return root.replace( /\/$/, '' ) + '/walkme/v1/posts';
+	return root.replace( /\/$/, '' ) + '/wm/v1/posts';
 }
 
 function getGrids() {
-	return Array.from( document.querySelectorAll( '[data-walkme-grid="1"]' ) );
+	return Array.from( document.querySelectorAll( '[data-wm-grid="1"]' ) );
 }
 
 function buildUrl( base, params ) {
@@ -80,18 +80,18 @@ async function refreshGrid( grid, overrides = {} ) {
 		}
 	} catch ( err ) {
 		// eslint-disable-next-line no-console
-		console.error( '[walkme/posts-grid]', err );
+		console.error( '[wm/posts-grid]', err );
 	} finally {
 		grid.classList.remove( 'is-loading' );
 	}
 }
 
 function onPaginationClick( e ) {
-	const btn = e.target.closest( '.walkme-posts-pagination__page, .walkme-posts-pagination__btn' );
+	const btn = e.target.closest( '.wm-posts-pagination__page, .wm-posts-pagination__btn' );
 	if ( ! btn ) {
 		return;
 	}
-	const grid = btn.closest( '[data-walkme-grid="1"]' );
+	const grid = btn.closest( '[data-wm-grid="1"]' );
 	if ( ! grid ) {
 		return;
 	}
@@ -132,7 +132,7 @@ function onFilterChange( e ) {
 
 function init() {
 	document.addEventListener( 'click', onPaginationClick );
-	window.addEventListener( 'walkme:filter-change', onFilterChange );
+	window.addEventListener( 'wm:filter-change', onFilterChange );
 }
 
 if ( document.readyState === 'loading' ) {

@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "walkme/posts-filter",
+	"name": "wm/posts-filter",
 	"version": "1.0.0",
 	"title": "Posts Filter",
 	"category": "widgets",
 	"icon": "filter",
 	"description": "Frontend filter UI (categories + tags) that controls a Posts Grid placed anywhere on the same page.",
-	"textdomain": "walkme-posts-blocks",
+	"textdomain": "wm-posts-blocks",
 	"supports": {
 		"html": false,
 		"align": ["wide"]

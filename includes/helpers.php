@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param mixed $raw  Raw input (string, array, or null).
  * @return int[]      Unique positive integers.
  */
-function walkme_pb_parse_term_ids( $raw ) {
+function wm_pb_parse_term_ids( $raw ) {
 	if ( is_string( $raw ) ) {
 		$raw = explode( ',', $raw );
 	}
@@ -31,7 +31,7 @@ function walkme_pb_parse_term_ids( $raw ) {
  * @param mixed $cols Raw input.
  * @return int        2, 3, or 4.
  */
-function walkme_pb_clamp_columns( $cols ) {
+function wm_pb_clamp_columns( $cols ) {
 	$cols = absint( $cols );
 	if ( ! in_array( $cols, array( 2, 3, 4 ), true ) ) {
 		return 3;

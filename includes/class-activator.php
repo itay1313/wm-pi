@@ -3,7 +3,7 @@
  * Demo content seeding on activation.
  *
  * - Idempotent: an option flag prevents re-seeding on reactivation.
- * - All seeded entities are tagged with `_walkme_demo = 1` meta so
+ * - All seeded entities are tagged with `_wm_demo = 1` meta so
  *   uninstall.php can clean them up without affecting user content.
  * - Featured images are SVG attachments generated locally — no network
  *   dependency, deterministic across environments.
@@ -13,11 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Walkme_PB_Activator {
+class Wm_PB_Activator {
 
-	const SEEDED_OPTION   = 'walkme_pb_seeded';
-	const DEMO_META_KEY   = '_walkme_demo';
-	const DEMO_PAGE_SLUG  = 'walkme-posts-demo';
+	const SEEDED_OPTION   = 'wm_pb_seeded';
+	const DEMO_META_KEY   = '_wm_demo';
+	const DEMO_PAGE_SLUG  = 'wm-posts-demo';
 
 	public static function activate() {
 		if ( get_option( self::SEEDED_OPTION ) ) {
@@ -109,7 +109,7 @@ class Walkme_PB_Activator {
 			$post_id = wp_insert_post(
 				array(
 					'post_title'   => $title,
-					'post_content' => "<p>{$excerpt}{$excerpt}</p><p>This is seeded content for the WalkMe assessment.</p>",
+					'post_content' => "<p>{$excerpt}{$excerpt}</p><p>This is seeded content for the WM assessment.</p>",
 					'post_excerpt' => $excerpt,
 					'post_status'  => 'publish',
 					'post_type'    => 'post',
@@ -189,7 +189,7 @@ class Walkme_PB_Activator {
 			esc_html( $label )
 		);
 
-		$filename = 'walkme-demo-' . ( $i + 1 ) . '.svg';
+		$filename = 'wm-demo-' . ( $i + 1 ) . '.svg';
 		$path     = trailingslashit( $uploads['path'] ) . $filename;
 		$url      = trailingslashit( $uploads['url'] ) . $filename;
 
@@ -248,16 +248,16 @@ class Walkme_PB_Activator {
 			return;
 		}
 
-		$query_id = 'demo-' . substr( md5( 'walkme-demo' ), 0, 8 );
+		$query_id = 'demo-' . substr( md5( 'wm-demo' ), 0, 8 );
 
-		$content  = "<!-- wp:walkme/posts-filter {\"targetQueryId\":\"{$query_id}\"} /-->\n";
-		$content .= "<!-- wp:walkme/posts-grid {\"queryId\":\"{$query_id}\",\"columns\":3,\"postsPerPage\":6} -->\n";
-		$content .= "<!-- wp:walkme/posts-pagination /-->\n";
-		$content .= "<!-- /wp:walkme/posts-grid -->";
+		$content  = "<!-- wp:wm/posts-filter {\"targetQueryId\":\"{$query_id}\"} /-->\n";
+		$content .= "<!-- wp:wm/posts-grid {\"queryId\":\"{$query_id}\",\"columns\":3,\"postsPerPage\":6} -->\n";
+		$content .= "<!-- wp:wm/posts-pagination /-->\n";
+		$content .= "<!-- /wp:wm/posts-grid -->";
 
 		$page_id = wp_insert_post(
 			array(
-				'post_title'   => 'WalkMe Posts Demo',
+				'post_title'   => 'WM Posts Demo',
 				'post_name'    => self::DEMO_PAGE_SLUG,
 				'post_content' => $content,
 				'post_status'  => 'publish',

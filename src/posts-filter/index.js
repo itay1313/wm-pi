@@ -17,16 +17,16 @@ registerBlockType( metadata.name, {
 			<>
 				<InspectorControls>
 					<PanelBody
-						title={ __( 'Filter target', 'walkme-posts-blocks' ) }
+						title={ __( 'Filter target', 'wm-posts-blocks' ) }
 					>
 						<TextControl
 							label={ __(
 								'Target Query ID (optional)',
-								'walkme-posts-blocks'
+								'wm-posts-blocks'
 							) }
 							help={ __(
 								'Leave blank to control every Posts Grid on the page. Set to a specific grid\'s queryId to target just that grid.',
-								'walkme-posts-blocks'
+								'wm-posts-blocks'
 							) }
 							value={ targetQueryId || '' }
 							onChange={ ( v ) =>
@@ -38,7 +38,7 @@ registerBlockType( metadata.name, {
 				<div { ...blockProps }>
 					<Disabled>
 						<ServerSideRender
-							block="walkme/posts-filter"
+							block="wm/posts-filter"
 							attributes={ { targetQueryId } }
 						/>
 					</Disabled>

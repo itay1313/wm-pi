@@ -13,8 +13,8 @@ import {
 } from '@wordpress/components';
 import ServerSideRender from '@wordpress/server-side-render';
 
-const ALLOWED_BLOCKS = [ 'walkme/posts-pagination' ];
-const TEMPLATE = [ [ 'walkme/posts-pagination' ] ];
+const ALLOWED_BLOCKS = [ 'wm/posts-pagination' ];
+const TEMPLATE = [ [ 'wm/posts-pagination' ] ];
 
 /**
  * Stable, short, deterministic ID derived from the clientId.
@@ -38,9 +38,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Grid settings', 'walkme-posts-blocks' ) }>
+				<PanelBody title={ __( 'Grid settings', 'wm-posts-blocks' ) }>
 					<SelectControl
-						label={ __( 'Columns', 'walkme-posts-blocks' ) }
+						label={ __( 'Columns', 'wm-posts-blocks' ) }
 						value={ String( columns ) }
 						options={ [
 							{ label: '2', value: '2' },
@@ -52,7 +52,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						}
 					/>
 					<RangeControl
-						label={ __( 'Posts per page', 'walkme-posts-blocks' ) }
+						label={ __( 'Posts per page', 'wm-posts-blocks' ) }
 						value={ postsPerPage }
 						onChange={ ( v ) =>
 							setAttributes( { postsPerPage: v } )
@@ -66,7 +66,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			<div { ...blockProps }>
 				<Disabled>
 					<ServerSideRender
-						block="walkme/posts-grid"
+						block="wm/posts-grid"
 						attributes={ {
 							queryId: queryId || generateQueryId( clientId ),
 							columns,
@@ -75,7 +75,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					/>
 				</Disabled>
 
-				<div className="walkme-posts-grid__inner-blocks">
+				<div className="wm-posts-grid__inner-blocks">
 					<InnerBlocks
 						allowedBlocks={ ALLOWED_BLOCKS }
 						template={ TEMPLATE }

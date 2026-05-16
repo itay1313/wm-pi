@@ -1,7 +1,7 @@
 {
-	"name": "walkme-posts-blocks",
+	"name": "wm-posts-blocks",
 	"version": "1.0.0",
-	"description": "WalkMe assessment — Posts Grid + Posts Filter Gutenberg blocks.",
+	"description": "WM assessment — Posts Grid + Posts Filter Gutenberg blocks.",
 	"private": true,
 	"scripts": {
 		"build": "wp-scripts build --webpack-src-dir=src --output-path=build",

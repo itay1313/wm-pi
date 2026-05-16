@@ -6,14 +6,14 @@ import metadata from './block.json';
 registerBlockType( metadata.name, {
 	edit: () => {
 		const blockProps = useBlockProps( {
-			className: 'walkme-posts-pagination-placeholder',
+			className: 'wm-posts-pagination-placeholder',
 		} );
 		return (
 			<div { ...blockProps }>
 				<em>
 					{ __(
 						'Pagination — rendered on the frontend by the parent Posts Grid.',
-						'walkme-posts-blocks'
+						'wm-posts-blocks'
 					) }
 				</em>
 			</div>

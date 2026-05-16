@@ -9,9 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Walkme_PB_REST_API {
+class Wm_PB_REST_API {
 
-	const NAMESPACE = 'walkme/v1';
+	const NAMESPACE = 'wm/v1';
 
 	public static function register_routes() {
 		register_rest_route(
@@ -61,7 +61,7 @@ class Walkme_PB_REST_API {
 			'tags'         => $request->get_param( 'tags' ),
 		);
 
-		$html = Walkme_PB_Renderer::render_grid( $attrs );
+		$html = Wm_PB_Renderer::render_grid( $attrs );
 
 		return rest_ensure_response(
 			array(

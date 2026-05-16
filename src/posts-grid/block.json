@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "walkme/posts-grid",
+	"name": "wm/posts-grid",
 	"version": "1.0.0",
 	"title": "Posts Grid",
 	"category": "widgets",
 	"icon": "grid-view",
 	"description": "Dynamic grid of posts with configurable columns and per-page count. Listens to Posts Filter changes.",
-	"textdomain": "walkme-posts-blocks",
+	"textdomain": "wm-posts-blocks",
 	"supports": {
 		"html": false,
 		"align": ["wide", "full"]
