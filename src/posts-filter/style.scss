@@ -216,6 +216,115 @@
 	align-items: center;
 	gap: 0.5rem;
 	margin-left: auto;
+	flex-wrap: wrap;
+}
+
+// ─── View controls (columns + per-page) ──────────────────────────
+.wm-posts-filter__view {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0 0.5rem 0 0;
+	border-right: 1px solid var(--wm-border);
+}
+
+.wm-posts-filter__cols {
+	display: inline-flex;
+	background: var(--wm-surface-2);
+	border: 1px solid var(--wm-border);
+	border-radius: var(--wm-radius-sm);
+	padding: 2px;
+	gap: 2px;
+}
+
+.wm-posts-filter__cols-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	background: transparent;
+	border: none;
+	color: var(--wm-text-dim);
+	padding: 0.35rem 0.5rem;
+	border-radius: 5px;
+	cursor: pointer;
+	font: inherit;
+	transition: all 0.15s ease;
+	min-width: 34px;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.04);
+		color: var(--wm-text);
+	}
+
+	&.is-active {
+		background: var(--wm-accent-strong, #6366f1);
+		color: #fff;
+		box-shadow: 0 0 0 2px var(--wm-accent-glow);
+
+		.wm-posts-filter__cols-bar {
+			background: rgba(255, 255, 255, 0.95);
+		}
+	}
+}
+
+.wm-posts-filter__cols-bar {
+	width: 3px;
+	height: 12px;
+	background: currentColor;
+	border-radius: 1px;
+	opacity: 0.85;
+}
+
+.wm-posts-filter__perpage {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.8rem;
+	color: var(--wm-text-dim);
+
+	select {
+		background: var(--wm-surface-2);
+		border: 1px solid var(--wm-border);
+		color: var(--wm-text);
+		border-radius: var(--wm-radius-sm);
+		padding: 0.4rem 1.8rem 0.4rem 0.7rem;
+		font: inherit;
+		font-size: 0.85rem;
+		cursor: pointer;
+		outline: none;
+		transition: all 0.15s ease;
+		appearance: none;
+		-webkit-appearance: none;
+		background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a3a3ad' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.55rem center;
+
+		&:hover, &:focus {
+			border-color: var(--wm-border-strong);
+		}
+		&:focus {
+			box-shadow: 0 0 0 3px var(--wm-accent-glow);
+		}
+	}
+}
+
+.wm-posts-filter__perpage-label {
+	letter-spacing: 0.02em;
+}
+
+// Screen-reader-only utility for labels.
+.screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
 }
 
 .wm-posts-filter__clear {

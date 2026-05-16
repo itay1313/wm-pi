@@ -69,13 +69,13 @@ async function refreshGrid( grid, overrides = {} ) {
 		const data = await res.json();
 
 		// The REST response wraps the full grid (including its outer div).
-		// Replace the current grid with the new one's children.
+		// Replace the current grid with the new one's children + sync attrs.
 		const tmp = document.createElement( 'div' );
 		tmp.innerHTML = data.html;
 		const fresh = tmp.firstElementChild;
 		if ( fresh ) {
 			grid.innerHTML = fresh.innerHTML;
-			// Sync dataset so subsequent paginations use the new state.
+			grid.className = fresh.className;
 			Object.entries( fresh.dataset ).forEach( ( [ k, v ] ) => {
 				grid.dataset[ k ] = v;
 			} );
@@ -134,9 +134,31 @@ function onFilterChange( e ) {
 	} );
 }
 
+function onViewChange( e ) {
+	const detail = e.detail || {};
+	const targetQueryId = detail.targetQueryId || '';
+	const next = {};
+	if ( [ 2, 3, 4 ].includes( detail.columns ) ) {
+		next.columns = detail.columns;
+	}
+	if ( typeof detail.perPage === 'number' && detail.perPage > 0 ) {
+		next.perPage = detail.perPage;
+	}
+	if ( Object.keys( next ).length === 0 ) {
+		return;
+	}
+	getGrids().forEach( ( grid ) => {
+		if ( targetQueryId && grid.dataset.queryId !== targetQueryId ) {
+			return;
+		}
+		refreshGrid( grid, { ...next, currentPage: 1 } );
+	} );
+}
+
 function init() {
 	document.addEventListener( 'click', onPaginationClick );
 	window.addEventListener( 'wm:filter-change', onFilterChange );
+	window.addEventListener( 'wm:view-change', onViewChange );
 }
 
 if ( document.readyState === 'loading' ) {

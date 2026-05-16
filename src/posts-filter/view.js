@@ -111,14 +111,87 @@ function onSearch( e ) {
 	);
 }
 
+function dispatchViewChange( root, payload ) {
+	const targetQueryId = root.dataset.targetQueryId || '';
+	window.dispatchEvent(
+		new CustomEvent( 'wm:view-change', {
+			detail: { ...payload, targetQueryId },
+		} )
+	);
+}
+
+function onColumnsClick( e ) {
+	const btn = e.target.closest( 'button[data-view="columns"]' );
+	if ( ! btn ) {
+		return;
+	}
+	const root = btn.closest( '[data-wm-filter="1"]' );
+	if ( ! root ) {
+		return;
+	}
+	const value = parseInt( btn.dataset.value, 10 );
+	if ( ! [ 2, 3, 4 ].includes( value ) ) {
+		return;
+	}
+	root.querySelectorAll( 'button[data-view="columns"]' ).forEach( ( b ) => {
+		b.classList.toggle( 'is-active', b === btn );
+	} );
+	dispatchViewChange( root, { columns: value } );
+}
+
+function onPerPageChange( e ) {
+	if ( ! e.target.matches( 'select[data-view="perPage"]' ) ) {
+		return;
+	}
+	const root = e.target.closest( '[data-wm-filter="1"]' );
+	if ( ! root ) {
+		return;
+	}
+	const value = parseInt( e.target.value, 10 );
+	if ( ! value || value < 1 ) {
+		return;
+	}
+	dispatchViewChange( root, { perPage: value } );
+}
+
+function syncViewControlsFromGrid( root ) {
+	// Find any grid this filter targets and reflect its current view state.
+	const targetQueryId = root.dataset.targetQueryId || '';
+	const sel = targetQueryId
+		? `[data-wm-grid="1"][data-query-id="${ targetQueryId }"]`
+		: '[data-wm-grid="1"]';
+	const grid = document.querySelector( sel );
+	if ( ! grid ) {
+		return;
+	}
+	const cols = parseInt( grid.dataset.columns, 10 ) || 3;
+	root.querySelectorAll( 'button[data-view="columns"]' ).forEach( ( b ) => {
+		b.classList.toggle( 'is-active', parseInt( b.dataset.value, 10 ) === cols );
+	} );
+	const perPage = parseInt( grid.dataset.perPage, 10 ) || 6;
+	const select = root.querySelector( 'select[data-view="perPage"]' );
+	if ( select ) {
+		// If the option exists, pick it; else add it.
+		if ( ! Array.from( select.options ).some( ( o ) => parseInt( o.value, 10 ) === perPage ) ) {
+			const opt = document.createElement( 'option' );
+			opt.value = String( perPage );
+			opt.textContent = String( perPage );
+			select.appendChild( opt );
+		}
+		select.value = String( perPage );
+	}
+}
+
 function init() {
 	document.addEventListener( 'change', onChange );
+	document.addEventListener( 'change', onPerPageChange );
 	document.addEventListener( 'click', onClick );
+	document.addEventListener( 'click', onColumnsClick );
 	document.addEventListener( 'input', onSearch );
 
-	// Initial: highlight the "All" pseudo-item.
 	document.querySelectorAll( '[data-wm-filter="1"]' ).forEach( ( root ) => {
 		syncAllState( root, true );
+		syncViewControlsFromGrid( root );
 	} );
 }
 

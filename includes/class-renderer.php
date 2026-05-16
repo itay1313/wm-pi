@@ -171,13 +171,35 @@ class Wm_PB_Renderer {
 					<?php endif; ?>
 				</div>
 				<div class="wm-posts-filter__tools">
+					<div class="wm-posts-filter__view" role="group" aria-label="<?php esc_attr_e( 'View options', 'wm-posts-blocks' ); ?>">
+						<div class="wm-posts-filter__cols" role="radiogroup" aria-label="<?php esc_attr_e( 'Columns', 'wm-posts-blocks' ); ?>">
+							<?php foreach ( array( 2, 3, 4 ) as $c ) : ?>
+								<button type="button" class="wm-posts-filter__cols-btn" data-view="columns" data-value="<?php echo esc_attr( (string) $c ); ?>" title="<?php echo esc_attr( sprintf( /* translators: %d: number of columns */ __( '%d columns', 'wm-posts-blocks' ), $c ) ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %d: number of columns */ __( '%d columns', 'wm-posts-blocks' ), $c ) ); ?>">
+									<?php for ( $j = 0; $j < $c; $j++ ) : ?>
+										<span class="wm-posts-filter__cols-bar"></span>
+									<?php endfor; ?>
+								</button>
+							<?php endforeach; ?>
+						</div>
+						<label class="wm-posts-filter__perpage">
+							<span class="wm-posts-filter__perpage-label"><?php esc_html_e( 'Show', 'wm-posts-blocks' ); ?></span>
+							<select data-view="perPage">
+								<option value="3">3</option>
+								<option value="6">6</option>
+								<option value="9">9</option>
+								<option value="12">12</option>
+								<option value="24">24</option>
+							</select>
+						</label>
+					</div>
 					<button type="button" class="wm-posts-filter__clear" title="<?php esc_attr_e( 'Clear all filters', 'wm-posts-blocks' ); ?>">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
 						<span><?php esc_html_e( 'Clear', 'wm-posts-blocks' ); ?></span>
 					</button>
 					<div class="wm-posts-filter__search">
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-						<input type="search" placeholder="<?php esc_attr_e( 'Search posts…', 'wm-posts-blocks' ); ?>" data-wm-search="1" />
+						<label class="screen-reader-text" for="wm-posts-filter-search"><?php esc_html_e( 'Search posts', 'wm-posts-blocks' ); ?></label>
+						<input id="wm-posts-filter-search" type="search" placeholder="<?php esc_attr_e( 'Search posts…', 'wm-posts-blocks' ); ?>" data-wm-search="1" />
 					</div>
 				</div>
 			</header>
