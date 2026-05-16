@@ -5,7 +5,8 @@
  * Version:           1.0.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
- * Author:            Itay (WM assessment)
+ * Author:            Itay Haephrati
+ * Author URI:        https://itaycode.com
  * License:           GPL-2.0-or-later
  * Text Domain:       wm-posts-blocks
  */
