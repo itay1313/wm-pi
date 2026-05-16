@@ -28,6 +28,7 @@ class Wm_PB_Renderer {
 		$current_page  = max( 1, absint( $attributes['currentPage'] ?? 1 ) );
 		$category_ids  = wm_pb_parse_term_ids( $attributes['categories'] ?? array() );
 		$tag_ids       = wm_pb_parse_term_ids( $attributes['tags'] ?? array() );
+		$search        = isset( $attributes['search'] ) ? sanitize_text_field( wp_unslash( (string) $attributes['search'] ) ) : '';
 
 		if ( ! $query_id ) {
 			// Editor preview without a saved queryId — synthesize one so attrs travel.
@@ -64,6 +65,10 @@ class Wm_PB_Renderer {
 			$query_args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 		}
 
+		if ( '' !== $search ) {
+			$query_args['s'] = $search;
+		}
+
 		$query = new WP_Query( $query_args );
 
 		// Inner blocks (pagination) — only rendered on initial SSR.
@@ -75,14 +80,15 @@ class Wm_PB_Renderer {
 		wp_reset_postdata();
 
 		$wrapper_attrs = sprintf(
-			'class="wm-posts-grid wm-posts-grid--cols-%1$d" data-wm-grid="1" data-query-id="%2$s" data-columns="%1$d" data-per-page="%3$d" data-current-page="%4$d" data-total-pages="%5$d" data-categories="%6$s" data-tags="%7$s"',
+			'class="wm-posts-grid wm-posts-grid--cols-%1$d" data-wm-grid="1" data-query-id="%2$s" data-columns="%1$d" data-per-page="%3$d" data-current-page="%4$d" data-total-pages="%5$d" data-categories="%6$s" data-tags="%7$s" data-search="%8$s"',
 			$columns,
 			esc_attr( $query_id ),
 			$per_page,
 			$current_page,
 			max( 1, (int) $query->max_num_pages ),
 			esc_attr( implode( ',', $category_ids ) ),
-			esc_attr( implode( ',', $tag_ids ) )
+			esc_attr( implode( ',', $tag_ids ) ),
+			esc_attr( $search )
 		);
 
 		// Items + pagination. We render pagination as part of the grid so REST
@@ -127,40 +133,73 @@ class Wm_PB_Renderer {
 		ob_start();
 		?>
 		<div class="wm-posts-filter" data-wm-filter="1" data-target-query-id="<?php echo esc_attr( $target_query_id ); ?>">
-			<fieldset class="wm-posts-filter__group" data-filter-type="categories">
-				<legend class="wm-posts-filter__legend"><?php esc_html_e( 'Categories', 'wm-posts-blocks' ); ?></legend>
-				<ul class="wm-posts-filter__list">
+			<aside class="wm-posts-filter__sidebar" aria-label="<?php esc_attr_e( 'Categories', 'wm-posts-blocks' ); ?>">
+				<header class="wm-posts-filter__sidebar-head">
+					<span class="wm-posts-filter__sidebar-title"><?php esc_html_e( 'Browse', 'wm-posts-blocks' ); ?></span>
+				</header>
+				<nav class="wm-posts-filter__nav" data-filter-type="categories">
+					<button type="button" class="wm-posts-filter__nav-item is-active" data-action="all">
+						<span class="wm-posts-filter__nav-icon" aria-hidden="true">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+						</span>
+						<span><?php esc_html_e( 'All', 'wm-posts-blocks' ); ?></span>
+					</button>
 					<?php if ( ! is_wp_error( $categories ) && ! empty( $categories ) ) : ?>
-						<?php foreach ( $categories as $term ) : ?>
-							<li>
-								<label>
-									<input type="checkbox" value="<?php echo esc_attr( $term->term_id ); ?>" data-filter-type="categories" />
-									<span><?php echo esc_html( $term->name ); ?></span>
-								</label>
-							</li>
+						<?php foreach ( $categories as $i => $term ) : ?>
+							<label class="wm-posts-filter__nav-item">
+								<input type="checkbox" value="<?php echo esc_attr( $term->term_id ); ?>" data-filter-type="categories" />
+								<span class="wm-posts-filter__nav-icon" aria-hidden="true">
+									<?php echo self::category_icon( $i ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								</span>
+								<span><?php echo esc_html( $term->name ); ?></span>
+								<span class="wm-posts-filter__nav-count"><?php echo esc_html( (string) $term->count ); ?></span>
+							</label>
 						<?php endforeach; ?>
 					<?php endif; ?>
-				</ul>
-			</fieldset>
-			<fieldset class="wm-posts-filter__group" data-filter-type="tags">
-				<legend class="wm-posts-filter__legend"><?php esc_html_e( 'Tags', 'wm-posts-blocks' ); ?></legend>
-				<ul class="wm-posts-filter__list">
+				</nav>
+			</aside>
+
+			<header class="wm-posts-filter__topbar">
+				<div class="wm-posts-filter__chips" data-filter-type="tags">
 					<?php if ( ! is_wp_error( $tags ) && ! empty( $tags ) ) : ?>
 						<?php foreach ( $tags as $term ) : ?>
-							<li>
-								<label>
-									<input type="checkbox" value="<?php echo esc_attr( $term->term_id ); ?>" data-filter-type="tags" />
-									<span><?php echo esc_html( $term->name ); ?></span>
-								</label>
-							</li>
+							<label class="wm-posts-filter__chip">
+								<input type="checkbox" value="<?php echo esc_attr( $term->term_id ); ?>" data-filter-type="tags" />
+								<span>#<?php echo esc_html( $term->name ); ?></span>
+							</label>
 						<?php endforeach; ?>
 					<?php endif; ?>
-				</ul>
-			</fieldset>
-			<button type="button" class="wm-posts-filter__clear"><?php esc_html_e( 'Clear filters', 'wm-posts-blocks' ); ?></button>
+				</div>
+				<div class="wm-posts-filter__tools">
+					<button type="button" class="wm-posts-filter__clear" title="<?php esc_attr_e( 'Clear all filters', 'wm-posts-blocks' ); ?>">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+						<span><?php esc_html_e( 'Clear', 'wm-posts-blocks' ); ?></span>
+					</button>
+					<div class="wm-posts-filter__search">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+						<input type="search" placeholder="<?php esc_attr_e( 'Search posts…', 'wm-posts-blocks' ); ?>" data-wm-search="1" />
+					</div>
+				</div>
+			</header>
 		</div>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render an inline SVG icon for a category nav item.
+	 * Cycles through a small set of icons keyed by index.
+	 */
+	protected static function category_icon( $i ) {
+		$icons = array(
+			'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg>',
+			'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+			'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 4.97-4.03 9-9 9-1.66 0-3.21-.45-4.55-1.24L3 21l1.24-4.45A8.97 8.97 0 0 1 3 12c0-4.97 4.03-9 9-9s9 4.03 9 9z"/></svg>',
+			'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+			'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>',
+			'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>',
+		);
+		return $icons[ $i % count( $icons ) ];
 	}
 
 	/**

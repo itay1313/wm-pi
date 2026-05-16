@@ -46,6 +46,10 @@ class Wm_PB_REST_API {
 						'type'    => 'string',
 						'default' => '',
 					),
+					'search'       => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 				),
 			)
 		);
@@ -59,6 +63,7 @@ class Wm_PB_REST_API {
 			'currentPage'  => $request->get_param( 'page' ),
 			'categories'   => $request->get_param( 'categories' ),
 			'tags'         => $request->get_param( 'tags' ),
+			'search'       => $request->get_param( 'search' ),
 		);
 
 		$html = Wm_PB_Renderer::render_grid( $attrs );

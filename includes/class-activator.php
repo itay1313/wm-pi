@@ -250,10 +250,17 @@ class Wm_PB_Activator {
 
 		$query_id = 'demo-' . substr( md5( 'wm-demo' ), 0, 8 );
 
-		$content  = "<!-- wp:wm/posts-filter {\"targetQueryId\":\"{$query_id}\"} /-->\n";
+		// Wrap filter + grid in a Group block with the wm-app-shell class —
+		// this gives the CSS a single container to apply the shell grid layout
+		// (sidebar | topbar / main).
+		$content  = "<!-- wp:group {\"className\":\"wm-app-shell\",\"align\":\"full\",\"layout\":{\"type\":\"default\"}} -->\n";
+		$content .= "<div class=\"wp-block-group alignfull wm-app-shell\">\n";
+		$content .= "<!-- wp:wm/posts-filter {\"targetQueryId\":\"{$query_id}\"} /-->\n\n";
 		$content .= "<!-- wp:wm/posts-grid {\"queryId\":\"{$query_id}\",\"columns\":3,\"postsPerPage\":6} -->\n";
 		$content .= "<!-- wp:wm/posts-pagination /-->\n";
-		$content .= "<!-- /wp:wm/posts-grid -->";
+		$content .= "<!-- /wp:wm/posts-grid -->\n";
+		$content .= "</div>\n";
+		$content .= "<!-- /wp:group -->";
 
 		$page_id = wp_insert_post(
 			array(

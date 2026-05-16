@@ -43,6 +43,7 @@ function readGridState( grid ) {
 		currentPage: parseInt( grid.dataset.currentPage, 10 ) || 1,
 		categories: grid.dataset.categories || '',
 		tags: grid.dataset.tags || '',
+		search: grid.dataset.search || '',
 	};
 }
 
@@ -55,6 +56,7 @@ async function refreshGrid( grid, overrides = {} ) {
 		page: state.currentPage,
 		categories: state.categories,
 		tags: state.tags,
+		search: state.search,
 	} );
 
 	grid.classList.add( 'is-loading' );
@@ -116,6 +118,7 @@ function onFilterChange( e ) {
 	const detail = e.detail || {};
 	const categories = Array.isArray( detail.categories ) ? detail.categories.join( ',' ) : '';
 	const tags = Array.isArray( detail.tags ) ? detail.tags.join( ',' ) : '';
+	const search = typeof detail.search === 'string' ? detail.search : '';
 	const targetQueryId = detail.targetQueryId || '';
 
 	getGrids().forEach( ( grid ) => {
@@ -125,6 +128,7 @@ function onFilterChange( e ) {
 		refreshGrid( grid, {
 			categories,
 			tags,
+			search,
 			currentPage: 1, // reset to first page on filter change
 		} );
 	} );

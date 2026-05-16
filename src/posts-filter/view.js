@@ -1,15 +1,15 @@
 /**
  * Posts Filter — frontend.
  *
- * On any checkbox change inside a filter root, collect the current
- * selected term IDs for both category and tag groups, and broadcast
- * a `wm:filter-change` CustomEvent on `window`. The Posts Grid
- * view script listens and refetches.
+ * Collects current filter selections (category checkboxes, tag checkboxes,
+ * search query) and broadcasts a `wm:filter-change` CustomEvent on `window`.
+ * The Posts Grid view script listens and refetches.
  *
- * Multiple filters on a page are independent: each filter owns its
- * own DOM and emits its own event. If a filter has `targetQueryId`,
- * the event carries it so only the matching grid responds.
+ * Multiple filters on a page are independent. If a filter has a
+ * `targetQueryId`, the event carries it so only the matching grid responds.
  */
+
+const SEARCH_DEBOUNCE_MS = 250;
 
 function readSelections( root ) {
 	const categories = Array.from(
@@ -24,16 +24,29 @@ function readSelections( root ) {
 		)
 	).map( ( el ) => parseInt( el.value, 10 ) ).filter( Boolean );
 
-	return { categories, tags };
+	const searchInput = root.querySelector( 'input[data-wm-search="1"]' );
+	const search = searchInput ? searchInput.value.trim() : '';
+
+	return { categories, tags, search };
 }
 
 function emit( root ) {
-	const { categories, tags } = readSelections( root );
+	const { categories, tags, search } = readSelections( root );
 	const targetQueryId = root.dataset.targetQueryId || '';
 	const evt = new CustomEvent( 'wm:filter-change', {
-		detail: { categories, tags, targetQueryId },
+		detail: { categories, tags, search, targetQueryId },
 	} );
 	window.dispatchEvent( evt );
+
+	// Visually sync the "All" pseudo-item (highlighted when no categories selected).
+	syncAllState( root, categories.length === 0 );
+}
+
+function syncAllState( root, isAllActive ) {
+	const allBtn = root.querySelector( '.wm-posts-filter__nav-item[data-action="all"]' );
+	if ( allBtn ) {
+		allBtn.classList.toggle( 'is-active', isAllActive );
+	}
 }
 
 function onChange( e ) {
@@ -45,26 +58,68 @@ function onChange( e ) {
 	}
 }
 
-function onClear( e ) {
-	const btn = e.target.closest( '.wm-posts-filter__clear' );
-	if ( ! btn ) {
+function onClick( e ) {
+	// "Clear" button — wipe all selections.
+	const clearBtn = e.target.closest( '.wm-posts-filter__clear' );
+	if ( clearBtn ) {
+		const root = clearBtn.closest( '[data-wm-filter="1"]' );
+		if ( root ) {
+			clearAll( root );
+		}
 		return;
 	}
-	const root = btn.closest( '[data-wm-filter="1"]' );
+
+	// "All" pseudo-item — clears category selections only.
+	const allBtn = e.target.closest( '.wm-posts-filter__nav-item[data-action="all"]' );
+	if ( allBtn ) {
+		const root = allBtn.closest( '[data-wm-filter="1"]' );
+		if ( root ) {
+			root.querySelectorAll(
+				'input[type="checkbox"][data-filter-type="categories"]'
+			).forEach( ( cb ) => { cb.checked = false; } );
+			emit( root );
+		}
+	}
+}
+
+function clearAll( root ) {
+	root.querySelectorAll(
+		'input[type="checkbox"][data-filter-type]'
+	).forEach( ( cb ) => { cb.checked = false; } );
+	const searchInput = root.querySelector( 'input[data-wm-search="1"]' );
+	if ( searchInput ) {
+		searchInput.value = '';
+	}
+	emit( root );
+}
+
+let searchTimers = new WeakMap();
+function onSearch( e ) {
+	if ( ! e.target.matches( 'input[data-wm-search="1"]' ) ) {
+		return;
+	}
+	const root = e.target.closest( '[data-wm-filter="1"]' );
 	if ( ! root ) {
 		return;
 	}
-	root.querySelectorAll(
-		'input[type="checkbox"][data-filter-type]'
-	).forEach( ( cb ) => {
-		cb.checked = false;
-	} );
-	emit( root );
+	if ( searchTimers.has( root ) ) {
+		clearTimeout( searchTimers.get( root ) );
+	}
+	searchTimers.set(
+		root,
+		setTimeout( () => emit( root ), SEARCH_DEBOUNCE_MS )
+	);
 }
 
 function init() {
 	document.addEventListener( 'change', onChange );
-	document.addEventListener( 'click', onClear );
+	document.addEventListener( 'click', onClick );
+	document.addEventListener( 'input', onSearch );
+
+	// Initial: highlight the "All" pseudo-item.
+	document.querySelectorAll( '[data-wm-filter="1"]' ).forEach( ( root ) => {
+		syncAllState( root, true );
+	} );
 }
 
 if ( document.readyState === 'loading' ) {
