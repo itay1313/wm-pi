@@ -109,3 +109,53 @@ function wm_pb_defer_view_scripts( $tag, $handle ) {
 	return $tag;
 }
 add_filter( 'script_loader_tag', 'wm_pb_defer_view_scripts', 10, 2 );
+
+/**
+ * Fix the long-standing core/navigation + core/page-list nesting bug.
+ *
+ * The nav block renders `<ul class="wp-block-navigation__container">`,
+ * and the page-list block (when used inside it) renders its own
+ * `<ul class="wp-block-page-list">`. Result: a <ul> directly inside a <ul>,
+ * which fails the Lighthouse "lists contain only <li> elements" audit.
+ *
+ * We unwrap the inner <ul>, leaving its <li> children inside the parent
+ * <ul>. Semantically identical, visually identical, but valid.
+ */
+function wm_pb_fix_page_list_nesting( $block_content, $block ) {
+	if ( ! isset( $block['blockName'] ) || 'core/page-list' !== $block['blockName'] ) {
+		return $block_content;
+	}
+	if ( ! preg_match( '/^\s*<ul[^>]*wp-block-page-list[^>]*>(.*)<\/ul>\s*$/s', $block_content, $m ) ) {
+		return $block_content;
+	}
+	return $m[1];
+}
+add_filter( 'render_block', 'wm_pb_fix_page_list_nesting', 10, 2 );
+
+/**
+ * Emit a `<meta name="description">` tag in the document head for singular
+ * pages and posts. Uses the post's excerpt if set, otherwise an auto-trim of
+ * the content. Helps the SEO audit and gives crawlers a clean summary.
+ */
+function wm_pb_meta_description() {
+	if ( is_admin() || ! is_singular() ) {
+		return;
+	}
+	$post = get_queried_object();
+	if ( ! $post || ! isset( $post->post_type ) ) {
+		return;
+	}
+	$description = '';
+	if ( ! empty( $post->post_excerpt ) ) {
+		$description = wp_strip_all_tags( $post->post_excerpt );
+	} else {
+		$description = wp_strip_all_tags( wp_trim_words( $post->post_content, 30, '…' ) );
+	}
+	if ( '' !== $description ) {
+		printf(
+			'<meta name="description" content="%s" />' . "\n",
+			esc_attr( $description )
+		);
+	}
+}
+add_action( 'wp_head', 'wm_pb_meta_description', 1 );

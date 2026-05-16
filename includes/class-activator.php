@@ -267,6 +267,7 @@ class Wm_PB_Activator {
 				'post_title'   => 'WM Posts Demo',
 				'post_name'    => self::DEMO_PAGE_SLUG,
 				'post_content' => $content,
+				'post_excerpt' => 'Live demo of the WM Posts Blocks plugin — a dynamic Posts Grid and a companion Posts Filter wired together with custom DOM events. Filter by category and tag, search by keyword, and paginate without a page reload.',
 				'post_status'  => 'publish',
 				'post_type'    => 'page',
 				'post_author'  => 1,
