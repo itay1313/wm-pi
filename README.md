@@ -1,8 +1,8 @@
-# WalkMe Posts Blocks
+# WM Posts Blocks
 
 A small, production-style WordPress plugin that ships two custom Gutenberg blocks — a dynamic **Posts Grid** and a companion **Posts Filter** — wired together via a clean, decoupled event contract. All demo content is seeded automatically on activation; no manual setup is required.
 
-Built as a technical assessment for the **WordPress Web Development Team Lead** role at WalkMe.
+Built as a technical assessment for a **WordPress Web Development Team Lead** role.
 
 **Author**: Itay Haephrati &nbsp;·&nbsp; [itaycode.com](https://itaycode.com)
 **Repository**: [github.com/itay1313/wm-pi](https://github.com/itay1313/wm-pi)
@@ -30,9 +30,9 @@ Built as a technical assessment for the **WordPress Web Development Team Lead** 
 
 After running the quick-start commands below, visit:
 
-- **Demo page (frontend)**: <http://localhost:8888/?page_id=28> — or any page with the slug `walkme-posts-demo`
+- **Demo page (frontend)**: <http://localhost:8888/?page_id=28> — or any page with the slug `wm-posts-demo`
 - **Admin (block editor)**: <http://localhost:8888/wp-admin/post.php?post=28&action=edit>
-- **REST endpoint**: <http://localhost:8888/wp-json/walkme/v1/posts?columns=3&per_page=6>
+- **REST endpoint**: <http://localhost:8888/wp-json/wm/v1/posts?columns=3&per_page=6>
 
 Login: `admin` / `password`
 
@@ -88,7 +88,7 @@ npm run env destroy  # Wipe containers + DB
 Seeding is idempotent — deactivating and reactivating the plugin will **not** create duplicate posts. To force a clean re-seed:
 
 ```bash
-npx wp-env run cli wp option delete walkme_pb_seeded
+npx wp-env run cli wp option delete wm_pb_seeded
 # then deactivate + reactivate the plugin in wp-admin
 ```
 
@@ -100,9 +100,9 @@ npx wp-env run cli wp option delete walkme_pb_seeded
 
 | Block | Type | Responsibility |
 |---|---|---|
-| `walkme/posts-grid` | Dynamic | Grid of posts with configurable columns (2 / 3 / 4) and posts-per-page. Renders server-side; refreshes via REST when filters change. |
-| `walkme/posts-pagination` | Dynamic, inner block | Pagination control. Locked to live inside `walkme/posts-grid` via the `ancestor` field. |
-| `walkme/posts-filter` | Dynamic | Frontend UI with category + tag checkboxes. Broadcasts filter changes as `window` events. |
+| `wm/posts-grid` | Dynamic | Grid of posts with configurable columns (2 / 3 / 4) and posts-per-page. Renders server-side; refreshes via REST when filters change. |
+| `wm/posts-pagination` | Dynamic, inner block | Pagination control. Locked to live inside `wm/posts-grid` via the `ancestor` field. |
+| `wm/posts-filter` | Dynamic | Frontend UI with category + tag checkboxes. Broadcasts filter changes as `window` events. |
 
 ### Seeded demo content
 
@@ -112,9 +112,9 @@ Created automatically when the plugin is first activated:
 - **8 tags**: WordPress · React · PHP · JavaScript · CSS · Performance · Accessibility · DevOps
 - **12 posts** — deterministic but overlapping category/tag assignments, so every realistic filter combination returns a meaningful subset (never empty, never identical to "all posts")
 - **Featured images** — locally generated colored SVGs, one per post (no network dependency)
-- **1 demo page** — `/walkme-posts-demo/`, with both blocks pre-placed and wired
+- **1 demo page** — `/wm-posts-demo/`, with both blocks pre-placed and wired
 
-All seeded items are tagged with `_walkme_demo = 1` (post-meta and term-meta) so `uninstall.php` can remove them cleanly without ever touching user content.
+All seeded items are tagged with `_wm_demo = 1` (post-meta and term-meta) so `uninstall.php` can remove them cleanly without ever touching user content.
 
 ---
 
@@ -124,13 +124,13 @@ A short, explicit account of the calls I made and why.
 
 ### 1. Three blocks, one server-side renderer
 
-Both the initial server-render and the AJAX refresh path call the same PHP method — `Walkme_PB_Renderer::render_grid()`. This means the markup can never drift between the two render paths. There is no client-side templating engine. The frontend payload remains small, accessible on first paint, and SEO-friendly.
+Both the initial server-render and the AJAX refresh path call the same PHP method — `Wm_PB_Renderer::render_grid()`. This means the markup can never drift between the two render paths. There is no client-side templating engine. The frontend payload remains small, accessible on first paint, and SEO-friendly.
 
 The cost is that REST responses carry HTML instead of JSON — perhaps 2–3× the size. For a posts grid this is irrelevant; for a 1000-item SaaS dashboard it would not be.
 
 ### 2. Pagination as a true inner block
 
-The pagination is its own registered block (`walkme/posts-pagination`) with `ancestor: ["walkme/posts-grid"]` in its `block.json`. Gutenberg enforces this — you cannot insert the pagination block anywhere except inside a Posts Grid. The grid uses `InnerBlocks` with `templateLock: "all"` and a fixed template so pagination is always present whenever a grid is inserted.
+The pagination is its own registered block (`wm/posts-pagination`) with `ancestor: ["wm/posts-grid"]` in its `block.json`. Gutenberg enforces this — you cannot insert the pagination block anywhere except inside a Posts Grid. The grid uses `InnerBlocks` with `templateLock: "all"` and a fixed template so pagination is always present whenever a grid is inserted.
 
 On the frontend the grid's PHP render embeds pagination markup directly, rather than running the inner block's own render callback. This keeps pagination state (current page, total pages) co-located with the query that produced it. Otherwise the inner block would need to introspect its parent's query — awkward in WordPress's block-rendering model.
 
@@ -146,7 +146,7 @@ The SVG MIME type is enabled temporarily (via an `upload_mimes` filter that is a
 
 ### 5. Idempotent activation
 
-A `walkme_pb_seeded` option guards the seeding routine, so deactivate → reactivate is a no-op. Every seeded entity carries a `_walkme_demo` marker meta. On uninstall, `uninstall.php` deletes everything bearing that marker and nothing else. User-created content is untouched, even if it shares a title or slug with seeded content.
+A `wm_pb_seeded` option guards the seeding routine, so deactivate → reactivate is a no-op. Every seeded entity carries a `_wm_demo` marker meta. On uninstall, `uninstall.php` deletes everything bearing that marker and nothing else. User-created content is untouched, even if it shares a title or slug with seeded content.
 
 ---
 
@@ -162,7 +162,7 @@ The brief explicitly disallows nesting the filter inside the grid: *"the two blo
                          │  - collects selected IDs     │
                          │  - dispatches CustomEvent on │
                          │    window:                   │
-                         │    'walkme:filter-change'    │
+                         │    'wm:filter-change'    │
                          └──────────────┬───────────────┘
                                         │
                                         │  detail: { categories, tags, targetQueryId }
@@ -170,14 +170,14 @@ The brief explicitly disallows nesting the filter inside the grid: *"the two blo
                          ┌──────────────────────────────┐
                          │ Posts Grid (view.js)         │
                          │  listens on window for       │
-                         │  'walkme:filter-change'      │
+                         │  'wm:filter-change'      │
                          └──────────────┬───────────────┘
                                         │
-                                        │  fetch('/wp-json/walkme/v1/posts?...')
+                                        │  fetch('/wp-json/wm/v1/posts?...')
                                         ▼
                          ┌──────────────────────────────┐
                          │ REST endpoint (PHP)          │
-                         │  Walkme_PB_Renderer::        │
+                         │  Wm_PB_Renderer::        │
                          │    render_grid($attrs)       │
                          │  → returns HTML              │
                          └──────────────┬───────────────┘
@@ -216,8 +216,8 @@ For a posts grid this is the right call. For a large data dashboard, JSON + clie
 
 The activator (`includes/class-activator.php`) does the following, in order:
 
-1. Bail early if `walkme_pb_seeded` option is already set.
-2. Create categories (`Product News`, `Tutorials`, `Case Studies`, `Opinion`), tagging each term with `_walkme_demo = 1`.
+1. Bail early if `wm_pb_seeded` option is already set.
+2. Create categories (`Product News`, `Tutorials`, `Case Studies`, `Opinion`), tagging each term with `_wm_demo = 1`.
 3. Create tags (8 of them), same marker.
 4. For each of 12 hard-coded post titles, in order:
    - Skip if a post with the same slug already exists.
@@ -225,9 +225,9 @@ The activator (`includes/class-activator.php`) does the following, in order:
    - Assign categories using a deterministic rotation — guarantees overlap.
    - Assign 2–4 tags using a separate rotation — guarantees richness.
    - Generate a colored SVG with the post's initials, register it as an attachment, set it as the featured image.
-   - Stamp `_walkme_demo = 1` on the post and the attachment.
+   - Stamp `_wm_demo = 1` on the post and the attachment.
 5. Create a demo page with both blocks pre-placed and a matching `queryId` / `targetQueryId` so they're wired together out of the box.
-6. Set `walkme_pb_seeded = 1`.
+6. Set `wm_pb_seeded = 1`.
 
 Seeded entities total: 4 terms + 8 terms + 12 posts + 12 attachments + 1 page = **37 demo items**, all tagged for clean removal on uninstall.
 
@@ -236,8 +236,8 @@ Seeded entities total: 4 terms + 8 terms + 12 posts + 12 attachments + 1 page = 
 ## Project layout
 
 ```
-walkme-posts-blocks/
-├── walkme-posts-blocks.php        Plugin bootstrap, block registration, hook wiring
+wm-posts-blocks/
+├── wm-posts-blocks.php        Plugin bootstrap, block registration, hook wiring
 ├── uninstall.php                  Demo cleanup on plugin delete
 ├── .wp-env.json                   wp-env (Docker) config — plugin auto-activates
 ├── package.json                   Dev dependencies, npm scripts
@@ -246,7 +246,7 @@ walkme-posts-blocks/
 ├── includes/
 │   ├── helpers.php                Input sanitization (term IDs, column clamping)
 │   ├── class-renderer.php         Shared SSR for all three blocks
-│   ├── class-rest-api.php         Registers /wp-json/walkme/v1/posts
+│   ├── class-rest-api.php         Registers /wp-json/wm/v1/posts
 │   └── class-activator.php        Idempotent demo seeding
 │
 ├── src/
@@ -259,7 +259,7 @@ walkme-posts-blocks/
 │   │   └── style.scss             Grid layout + pagination styles
 │   │
 │   ├── posts-pagination/
-│   │   ├── block.json             ancestor: ["walkme/posts-grid"]
+│   │   ├── block.json             ancestor: ["wm/posts-grid"]
 │   │   └── index.js               Editor placeholder; PHP renders on frontend
 │   │
 │   └── posts-filter/
@@ -277,8 +277,8 @@ walkme-posts-blocks/
 
 - **PHP** — WordPress Coding Standards conventions: tab indentation, `esc_*` on every output, `wp_kses_post` for rich HTML, prepared statements via `$wpdb->prepare`, capability/permission checks declared explicitly even when the endpoint is intentionally public.
 - **JavaScript** — `@wordpress/scripts` ESLint config (`npm run lint:js`). No external React libraries; only `@wordpress/*` packages.
-- **CSS / SCSS** — BEM naming under a single `walkme-posts-*` namespace. No global selectors.
-- **i18n** — every user-facing string is wrapped with `__()` / `_e()` / `esc_html__()` under the `walkme-posts-blocks` text domain.
+- **CSS / SCSS** — BEM naming under a single `wm-posts-*` namespace. No global selectors.
+- **i18n** — every user-facing string is wrapped with `__()` / `_e()` / `esc_html__()` under the `wm-posts-blocks` text domain.
 - **Security** — `esc_attr` on every dynamic attribute, `esc_html` on every dynamic text node, `wp_kses_post` on rich HTML. The REST endpoint returns SSR output that has already been escaped during PHP rendering.
 
 ---
@@ -288,9 +288,9 @@ walkme-posts-blocks/
 A quick end-to-end smoke test you can run after `npm run env start`:
 
 1. **Admin loads** — visit <http://localhost:8888/wp-admin> and log in (`admin` / `password`).
-2. **Plugin is active** — Plugins screen shows "WalkMe Posts Blocks" enabled.
+2. **Plugin is active** — Plugins screen shows "WM Posts Blocks" enabled.
 3. **Seeding ran** — Posts screen lists 12 demo posts, each with a colored featured image and at least one category + one tag.
-4. **Demo page exists** — Pages screen lists "WalkMe Posts Demo". Open it in the block editor; the filter block is on top, the grid + pagination below.
+4. **Demo page exists** — Pages screen lists "WM Posts Demo". Open it in the block editor; the filter block is on top, the grid + pagination below.
 5. **Inspector controls work** — click the grid, open the right sidebar, change Columns to 4 and Posts per page to 4. The editor preview updates.
 6. **Frontend renders** — view the demo page. You should see 6 posts in a 3-column grid with pagination at the bottom.
 7. **Filter — OR within type** — check two categories; the grid refreshes via AJAX to show posts in either category.
@@ -304,12 +304,12 @@ A quick end-to-end smoke test you can run after `npm run env start`:
 
 ```bash
 # Number of posts matching a category (Tutorials, term_id 3)
-curl -s "http://localhost:8888/wp-json/walkme/v1/posts?per_page=20&categories=3" \
-  | python3 -c "import json,sys,re; h=json.load(sys.stdin)['html']; print(len(re.findall(r'walkme-posts-grid__link', h)))"
+curl -s "http://localhost:8888/wp-json/wm/v1/posts?per_page=20&categories=3" \
+  | python3 -c "import json,sys,re; h=json.load(sys.stdin)['html']; print(len(re.findall(r'wm-posts-grid__link', h)))"
 
 # Category AND tag (Tutorials AND React)
-curl -s "http://localhost:8888/wp-json/walkme/v1/posts?per_page=20&categories=3&tags=7" \
-  | python3 -c "import json,sys,re; h=json.load(sys.stdin)['html']; print(len(re.findall(r'walkme-posts-grid__link', h)))"
+curl -s "http://localhost:8888/wp-json/wm/v1/posts?per_page=20&categories=3&tags=7" \
+  | python3 -c "import json,sys,re; h=json.load(sys.stdin)['html']; print(len(re.findall(r'wm-posts-grid__link', h)))"
 ```
 
 ---
@@ -353,4 +353,4 @@ GPL-2.0-or-later, matching WordPress core.
 **Itay Haephrati** — engineer and product builder.
 Web: [itaycode.com](https://itaycode.com) · GitHub: [@itay1313](https://github.com/itay1313)
 
-This plugin was built as a technical assessment for WalkMe.
+This plugin was built as a technical assessment.
